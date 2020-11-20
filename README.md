@@ -1,2 +1,2 @@
 # verilog_alu
-A ALU designed in the Verilog HDL
+A 16-bit ALU designed in the Verilog HDL
