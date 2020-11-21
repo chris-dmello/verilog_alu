@@ -134,6 +134,9 @@ module ALU(clk, A, B, opcode, result);
 	NOR norOp(A, B, w8);
 	NOT notOp(A, w9);
 
+	wire [15:0] [9:0] muxIn = {w0, w1, w2, w3, w4, w5, w6, w7, w8, w9};
+	
+	MUX mux(muxIn, opcode, result);	
 
 	//always @ (posedge clk)
 	//	begin
