@@ -18,6 +18,20 @@ module MUX(channels, select, op);
 
 endmodule	
 
+// 16-bit D Flip-Flop
+module DFF16(clk, D, Q);
+	input clk;
+	input [15:0] D;
+	output [15:0] Q;
+
+	reg [15:0] value;
+
+	assign Q = value;
+
+	always @(posedge clk)
+		value = D;
+
+endmodule
 
 // 16-bit Adder
 module adder(A, B, op);
@@ -90,11 +104,11 @@ endmodule
 
 
 // 16-bit NOT module
-module NOT(A, B, op);
-	input [15:0] A, B;
+module NOT(A, op);
+	input [15:0] A;
 	output [15:0] op;
 	
-	not G[0:15] (op, A, B);
+	not G[0:15] (op, A);
 	
 endmodule
 
@@ -102,7 +116,7 @@ endmodule
 //====================================================
 // ALU
 //====================================================
-module ALU(clk, A, B, opcode, result)
+module ALU(clk, A, B, opcode, result);
 	// I/O
 	input clk;
 	input [15:0] A, B;
@@ -110,16 +124,25 @@ module ALU(clk, A, B, opcode, result)
 	output [15:0] result;
 
 	// Wires
-	//wire [15:0]
+	wire [15:0] w0, w1, w2, w3, w4, w5, w6, w7, w8, w9;
+	adder addOp(A, B, w2);
+	subtractor subOp(A, B, w3);
+	OR orOp(A, B, w4);
+	XOR xorOp(A, B, w5);
+	AND andOp(A, B, w6);
+	NAND nandOp(A, B, w7);
+	NOR norOp(A, B, w8);
+	NOT notOp(A, w9);
 
-	//MUX()	
 
-	always @ (posedge clk)
-		begin
-			case(opcode):
+	//always @ (posedge clk)
+	//	begin
+	//		case(opcode)
+//
+//
+	//	end
 
-
-		end
+endmodule
 
 
 
