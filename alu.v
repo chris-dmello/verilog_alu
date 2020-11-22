@@ -33,11 +33,19 @@ module DFF16(clk, D, Q);
 
 endmodule
 
+//16-bit Half-Adder
+module half_adder(A, B, c_out, op);
+	input [15:0] A, B;
+	xor G[15:0](op, A, B);
+	and G[15:0](c_out, A, B);
+
+endmodule	
+
 // 16-bit Adder
 module adder(A, B, op);
 	input [15:0] A, B;
 	output [15:0] op;
-	
+
 	assign op = A + B;
 	
 endmodule
