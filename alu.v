@@ -1,8 +1,23 @@
 //====================================================
-// Fierce Digital Semester Project
+//			Fierce Digital Semester Project
+//					 16-bit ALU
 //====================================================
 
-
+//====================================================
+// Opcodes
+//====================================================
+//	-------------------------
+//	| 0000 | No-Operation	|
+//	| 0001 | Reset			|
+//	| 0100 | ADD			|
+//	| 0101 | SUBTRACT		|
+//	| 1000 | AND			|
+//	| 1001 | OR				|
+//	| 1010 | XOR			|
+//	| 1011 | NAND			|
+//	| 1100 | NOR			|
+//	| 1101 | NOT			|
+//	-------------------------
 
 //====================================================
 // PARTS BIN
@@ -33,13 +48,26 @@ module DFF16(clk, D, Q);
 
 endmodule
 
-//16-bit Half-Adder
+//1-bit Half-Adder
 module half_adder(A, B, c_out, op);
-	input [15:0] A, B;
-	xor G[15:0](op, A, B);
-	and G[15:0](c_out, A, B);
+	input  A, B;
+	output c_out, op;
+	xor(op, A, B);
+	and(c_out, A, B);
 
 endmodule	
+
+// 1-bit Full-Adder
+module full_adder(A, B, c_in, c_out, op);
+	input A, B, c_in;
+	output c_out, op;
+	wire w0, w1, w2;
+	
+	half_adder HA1(A, B, w0, w1);
+	half_adder HA2(w1, c_in, w2, op);
+	or(c_out, w0, w3);
+
+endmodule
 
 // 16-bit Adder
 module adder(A, B, op);
