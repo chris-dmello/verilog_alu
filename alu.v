@@ -69,8 +69,8 @@ module full_adder(A, B, c_in, c_out, op);
 
 endmodule
 
-// 16-bit Adder
-module adder(A, B, op);
+// 16-bit Adder - Behavioral
+module adder16_behavioral(A, B, op);
 	input [15:0] A, B;
 	output [15:0] op;
 
@@ -78,9 +78,36 @@ module adder(A, B, op);
 	
 endmodule
 
+// 16-bit Adder - Structural
+module adder16(A, B, c_in, c_out, op);
+	input [15:0] A, B;
+	input c_in;
+	output [15:0] op;
+	output c_out;
+	wire c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15;
+
+	full_adder FA0(A[0], B[0], c_in, c1, op[0]);
+	full_adder FA1(A[1], B[1], c1, c2, op[1]);
+	full_adder FA2(A[2], B[2], c2, c3, op[2]);
+	full_adder FA3(A[3], B[3], c3, c4, op[3]);
+	full_adder FA4(A[4], B[4], c4, c5, op[4]);
+	full_adder FA5(A[5], B[5], c5, c6, op[5]);
+	full_adder FA6(A[6], B[6], c6, c7, op[6]);
+	full_adder FA7(A[7], B[7], c7, c8, op[7]);
+	full_adder FA8(A[8], B[8], c8, c9, op[8]);
+	full_adder FA9(A[9], B[9], c9, c10, op[9]);
+	full_adder FA10(A[10], B[10], c10, c11, op[10]);
+	full_adder FA11(A[11], B[11], c11, c12, op[11]);
+	full_adder FA12(A[12], B[12], c12, c13, op[12]);
+	full_adder FA13(A[13], B[13], c13, c14, op[13]);
+	full_adder FA14(A[14], B[14], c14, c15, op[14]);
+	full_adder FA15(A[15], B[15], c15, c_out, op[15]);
+
+endmodule
+
 
 // 16-bit Subtractor
-module subtractor(A, B, op);
+module subtractor16_behavioral(A, B, op);
 	input [15:0] A, B;
 	output [15:0] op;
 	
@@ -161,8 +188,8 @@ module ALU(clk, A, B, opcode, result);
 
 	// Wires
 	wire [15:0] w0, w1, w2, w3, w4, w5, w6, w7, w8, w9;
-	adder addOp(A, B, w2);
-	subtractor subOp(A, B, w3);
+	adder16_behavioral addOp(A, B, w2);
+	subtractor16_behavioral subOp(A, B, w3);
 	OR orOp(A, B, w4);
 	XOR xorOp(A, B, w5);
 	AND andOp(A, B, w6);
