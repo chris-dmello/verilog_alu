@@ -244,27 +244,46 @@ endmodule
 // FILE I/O - The part that talks to the App
 //====================================================
 
-module TestBench();
-	integer file_input, scan_input; 
-	reg [35:0] captured_input;
+module controller();
+	reg [15:0] A, B;
+	wire [15:0] result;
+	reg [3:0] opcode;
+	reg clk,reset;
+	reg [15:0] captured_input_A;
+	reg [15:0] captured_input_B;
+	reg [3:0] captured_input_op;
+	integer file_output, file_input, scan_input_A, scan_input_B, scan_input_op;
+
+	ALU alu(clk, A, B, opcode, result);
+	
+	always #5 clk=~clk;
+
+	initial begin
+		clk=0; reset=1;
+		@(posedge clk);
+		@(posedge clk);
+		reset=0;
+	end
 
 	initial begin
 		file_input = $fopen("calc_in.dat", "r");
-		if(file_input == 0) begin
-			$display("The input file could not be opened.");
-			$finish;
-		end
+		file_output = $fopen("calc_out.dat","w");
+
+		@(negedge reset);
+		@(posedge clk);
+
 	end
-
-	always @ (*) begin
-		if (!$feof(file_input)) begin
-			scan_input = $fscanf(file_input, "%b\n", captured_input);
-			$display ("Input: %b", captured_input);
-		end
-		else begin
-			$finish;
-			$fclose(file_input);
-
-		end
+	initial begin
+		@(posedge clk);
+		scan_input_A = $fscanf(file_input, "%b\n", captured_input_A);
+		scan_input_B = $fscanf(file_input, "%b\n", captured_input_B);
+		scan_input_op = $fscanf(file_input, "%b\n", captured_input_op);
+		A <= captured_input_A;
+		B <= captured_input_B;
+		opcode <= captured_input_op;
+		$display("Result: %b\n", result);
+		$fwrite(file_output, "%b\n",   captured_input_op);
+		$fclose(file_output);  
+		$finish;
 	end
 endmodule
