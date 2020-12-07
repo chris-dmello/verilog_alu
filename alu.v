@@ -18,14 +18,13 @@
 //	| 1100 | NOR			|
 //	| 1101 | NOT			|
 //	-------------------------
-
 //====================================================
 // PARTS BIN
 //====================================================
 
 // 16 to 1, 4-bit wide MUX
 module MUX(channels, select, op);
-	input [15:0][9:0] channels;
+	input [15:0][15:0] channels;
 	input [3:0] select;
 	output [15:0] op;
 	
@@ -38,14 +37,12 @@ module DFF16(clk, D, Q);
 	input clk;
 	input [15:0] D;
 	output [15:0] Q;
-
-	reg [15:0] value;
-
-	assign Q = value;
+	reg [15:0] Q;
 
 	always @(posedge clk)
-		value = D;
-
+	begin
+		Q = D;
+	end
 endmodule
 
 //1-bit Half-Adder
@@ -65,94 +62,51 @@ module full_adder(A, B, c_in, c_out, op);
 	
 	half_adder HA1(A, B, w0, w1);
 	half_adder HA2(w1, c_in, w2, op);
-	or(c_out, w0, w3);
+	or(c_out, w0, w2);
 
 endmodule
-
-// 16-bit Adder - Behavioral
-module adder16_behavioral(A, B, op);
-	input [15:0] A, B;
-	output [15:0] op;
-
-	assign op = A + B;
-	
-endmodule
-
 
 // 16-bit Adder - Structural
-module adder16(A, B, c_in, c_out, op);
+module add_subtract_16(A, B, M, c_out, op);
 	input [15:0] A, B;
-	input c_in;
+	input M;
 	output [15:0] op;
 	output c_out;
-	wire c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15;
 
-	full_adder FA0(A[0], B[0], c_in, c1, op[0]);
-	full_adder FA1(A[1], B[1], c1, c2, op[1]);
-	full_adder FA2(A[2], B[2], c2, c3, op[2]);
-	full_adder FA3(A[3], B[3], c3, c4, op[3]);
-	full_adder FA4(A[4], B[4], c4, c5, op[4]);
-	full_adder FA5(A[5], B[5], c5, c6, op[5]);
-	full_adder FA6(A[6], B[6], c6, c7, op[6]);
-	full_adder FA7(A[7], B[7], c7, c8, op[7]);
-	full_adder FA8(A[8], B[8], c8, c9, op[8]);
-	full_adder FA9(A[9], B[9], c9, c10, op[9]);
-	full_adder FA10(A[10], B[10], c10, c11, op[10]);
-	full_adder FA11(A[11], B[11], c11, c12, op[11]);
-	full_adder FA12(A[12], B[12], c12, c13, op[12]);
-	full_adder FA13(A[13], B[13], c13, c14, op[13]);
-	full_adder FA14(A[14], B[14], c14, c15, op[14]);
-	full_adder FA15(A[15], B[15], c15, c_out, op[15]);
+	// interfaces
+	wire [15:0] cin;
+	wire [15:0] cout;
+	wire [15:0] B1;
 
-endmodule
-
-
-// 16-bit Subtractor - Behavioral
-module subtractor16_behavioral(A, B, op);
-	input [15:0] A, B;
-	output [15:0] op;
+	// Link wires
+	assign cin[0] = M;
+	assign cin[1] = cout[0];
+	assign cin[2] = cout[1];
+	assign cin[3] = cout[2];
+	assign cin[4] = cout[3];
+	assign cin[5] = cout[4];
+	assign cin[6] = cout[5];
+	assign cin[7] = cout[6];
+	assign cin[8] = cout[7];
+	assign cin[9] = cout[8];
+	assign cin[10] = cout[9];
+	assign cin[11] = cout[10];
+	assign cin[12] = cout[11];
+	assign cin[13] = cout[12];
+	assign cin[14] = cout[13];
+	assign cin[15] = cout[14];
+	assign c_out = cout[15];
 	
-	assign op = A - B;
+	xor G[15:0] (B1, B, M);
+	full_adder FA[15:0] (A, B1, cin, cout, op);
 	
 endmodule
-
-
-// 16-bit Subtractor - Structural
-module subtractor16(A, B, overflow, op);
-	input [15:0] A, B;
-	output [15:0] op;
-	output overflow;
-	wire c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15; //carry lines
-	wire c_final;
-
-	full_adder FA0(A[0], ~(B[0]), 1'b1, c1, op[0]);
-	full_adder FA1(A[1], ~(B[1]), c1, c2, op[1]);
-	full_adder FA2(A[2], ~(B[2]), c2, c3, op[2]);
-	full_adder FA3(A[3], ~(B[3]), c3, c4, op[3]);
-	full_adder FA4(A[4], ~(B[4]), c4, c5, op[4]);
-	full_adder FA5(A[5], ~(B[5]), c5, c6, op[5]);
-	full_adder FA6(A[6], ~(B[6]), c6, c7, op[6]);
-	full_adder FA7(A[7], ~(B[7]), c7, c8, op[7]);
-	full_adder FA8(A[8], ~(B[8]), c8, c9, op[8]);
-	full_adder FA9(A[9], ~(B[9]), c9, c10, op[9]);
-	full_adder FA10(A[10], ~(B[10]), c10, c11, op[10]);
-	full_adder FA11(A[11], ~(B[11]), c11, c12, op[11]);
-	full_adder FA12(A[12], ~(B[12]), c12, c13, op[12]);
-	full_adder FA13(A[13], ~(B[13]), c13, c14, op[13]);
-	full_adder FA14(A[14], ~(B[14]), c14, c15, op[14]);
-	full_adder FA15(A[15], ~(B[15]), c15, c_final, op[15]);
-	xor(overflow, c15, c_final);
-
-endmodule
-
 
 // 16-bit OR module
 module OR(A, B, op);
 	input [15:0] A, B;
 	output [15:0] op;
-	
 	or G[0:15] (op, A, B);
-	
 endmodule
 
 
@@ -162,7 +116,6 @@ module AND(A, B, op);
 	output [15:0] op;
 	
 	and G[0:15] (op, A, B);
-	
 endmodule
 
 
@@ -209,45 +162,169 @@ endmodule
 //====================================================
 // ALU
 //====================================================
-module ALU(clk, A, B, opcode, result);
-	// I/O
+module ALU(clk, A, opcode, C, E);
+
 	input clk;
-	input [15:0] A, B;
 	input [3:0] opcode;
-	output [15:0] result;
+	input [15:0] A;
 
-	// Wires
-	wire [15:0] w0, w1, w2, w3, w4, w5, w6, w7, w8, w9;
-	adder16_behavioral addOp(A, B, w2);
-	subtractor16_behavioral subOp(A, B, w3);
-	OR orOp(A, B, w4);
-	XOR xorOp(A, B, w5);
-	AND andOp(A, B, w6);
-	NAND nandOp(A, B, w7);
-	NOR norOp(A, B, w8);
-	NOT notOp(A, w9);
+	output [15:0] C;
+	output E; // Error applicable only to addition
+// Opcodes
+//====================================================
+//	-------------------------
+//	| 0000 | No-Operation	|
+//	| 0001 | Reset			|
+//	| 0100 | ADD			|
+//	| 0101 | SUBTRACT		|
+//	| 1000 | AND			|
+//	| 1001 | OR				|
+//	| 1010 | XOR			|
+//	| 1011 | NAND			|
+//	| 1100 | NOR			|
+//	| 1101 | NOT			|
+//	-------------------------
 
-	wire [15:0] [9:0] muxIn = {w0, w1, w2, w3, w4, w5, w6, w7, w8, w9};
+
+//interfaces
+	wire [15:0][15:0] channels;
+	wire [15:0] b;
+	wire [15:0] outputADD;
+	wire cout;
+	wire [15:0] outputAND;
+	wire [15:0] outputOR;
+	wire [15:0] outputXOR;
+	wire [15:0] outputNAND;
+	wire [15:0] outputNOR;
+	wire [15:0] outputNOT;
+
+	wire [15:0] next, cur;
+
+	add_subtract_16 add_sub1(cur, A, opcode[0], cout, outputADD);
+	AND and_er1(A, cur, outputAND);
+	OR or_er1(A, cur, outputOR);
+	XOR xor_er1(A, cur, outputXOR);
+	NAND nander1(A, cur, outputNAND);
+	NOR nor_er1(A, cur, outputNAND);
+	NOT not_er1(cur, outputNOT);
+
+	assign channels[0] = cur; // No-Operation
+	assign channels[1] = 0; // Reset
+	assign channels[2] = 0;
+	assign channels[3] = 0;
+	assign channels[4] = outputADD;
+	assign channels[5] = outputADD;
+	assign channels[6] = 0;
+	assign channels[7] = 0;
+	assign channels[8] = outputAND;
+	assign channels[9] = outputOR;
+	assign channels[10] = outputXOR;
+	assign channels[11] = outputNAND;
+	assign channels[12] = outputNOR;
+	assign channels[13] = outputNOT;
+	assign channels[14] = 0;
+	assign channels[15] = 0;
+
+	MUX mux1(channels, opcode, b);
+	DFF16 acc1(clk, next, cur);
+
+	assign next = b;
+	assign C = b;
+	assign E = !opcode[3] & opcode[2] & !opcode[0] & cout; //ERROR bit
 	
-	MUX mux(muxIn, opcode, result);	
-
-	//always @ (posedge clk)
-	//	begin
-	//		case(opcode)
-//
-//
-	//	end
-
 endmodule
-
-
-
-
 //====================================================
 // TEST BENCH
 //====================================================
 
-//module TestBench()
-//	initial begin
-//   
-//	end
+module TestBench();
+
+	reg clk;
+	reg [15:0] A;
+	reg [3:0] opcode;
+	reg [8*8:1] command;
+	wire [15:0] outputC;
+	wire E;
+	
+	ALU alu1(clk, A, opcode, outputC, E);
+	
+	   //CLOCK
+    initial begin //Start Clock Thread
+		forever //While TRUE
+			begin //Do Clock Procedural
+				clk=0; //square wave is low
+				#5; //half a wave is 5 time units
+				clk=1;//square wave is high
+				#5; //half a wave is 5 time units
+			end
+	end
+		
+	initial begin //Display Thread, output!
+		$display("------------------------------------------------------------------------------");
+		$display("|Clk|Accumulator     |Input           |Opcode|Command |Output          |Error|");
+		$display("|---|----------------|----------------|------|--------|----------------|-----|");
+	   #2; //offset from square 
+	   forever //While True
+			begin
+				$display("|%b  |%16b|%16b|%4b  |%-8s|%16b|%b    |",clk,alu1.cur,A,opcode,command,alu1.b, E);
+				#5;
+				$display("|%b  |%16b|%16b|%4b  |%-8s|%16b|%b    |",clk,alu1.cur,A,opcode,command,alu1.b, E);
+				#5;
+				$display("|---|----------------|----------------|------|--------|----------------|-----|");
+			end
+	end
+
+	// STIMULUS
+	initial begin
+		#6; // get in tune with clock
+		A = 16'b0;
+		opcode = 4'b0001; //Reset
+		command = "RESET";
+		#10;
+		A = 16'b0;
+		opcode = 4'b0000; //NOOP
+		command = "NO-OP";
+		#10;
+		A = 35000;
+		opcode = 4'b0100; // ADD
+		command = "ADD";
+		#10;
+		#10; // ADD and cause overflow
+		A = 16'b0;
+		opcode = 4'b0001; //RESET
+		command = "RESET";
+		#10;
+		A = 16'b0000000000000100; // A = 4
+		opcode = 4'b0100; // ADD
+		command = "ADD";
+		#10;
+		A = 16'b0000000000000011; // A = 3
+		opcode = 4'b0101; // SUBTRACT
+		command = "SUBTRACT";
+		#10;
+		A = 16'b0;
+		opcode = 4'b0001; //RESET
+		command = "RESET";
+		#10;
+		A = 16'b1111111111111111;
+		opcode = 4'b1001; // OR
+		command = "OR";
+		#10;
+		A = 16'b0;
+		opcode = 4'b1000; // AND
+		command = "AND";
+		#10;
+		A = 16'b1111111111111111;
+		opcode = 4'b1010; //XOR
+		command = "XOR";
+		#10
+		opcode = 4'b1101; //NOT
+		command = "NOT";
+		#10
+		A = 16'b0;
+		opcode = 4'b0001; //RESET
+		command = "RESET";
+		#10
+	$finish;
+	end
+endmodule
